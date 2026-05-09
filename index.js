@@ -1,19 +1,23 @@
-function getUserFromDatabase(id) {
-  return new Promise((resolve) => {
+async function moderatePost(content) {
+  console.log("Sending to Claude...");
+  const claudeResponse = await new Promise((resolve) => {
     setTimeout(() => {
-      resolve({ id: id, username: "theharmony", email: "gvabeme124ceg@gmail.com" });
-    }, 1000); // waits 1 second to simulate database delay
+      resolve({
+        approved: true,
+        reason: "Content is safe and appropriate"
+      });
+    }, 1500);
   });
+  console.log("Claude responded:", claudeResponse);
+  return claudeResponse;
 }
-function getBrokenUser() {
-  const user = getUserFromDatabase(1); // doesn't wait
-  console.log("Got user:", user);      // prints before user arrives ❌
+async function createPost(userId, content) {
+  console.log("User creating post:", content);
+  const moderation = await moderatePost(content);
+  if (moderation.approved) {
+    console.log("Post approved and published ✅");
+  } else {
+    console.log("Post rejected ❌ Reason:", moderation.reason);
+  }
 }
-
-getBrokenUser();
-async function getCorrectUser() {
-  const user = await getUserFromDatabase(1);
-  console.log("Got user:", user);
-}
-
-getCorrectUser();
+createPost(1, "Hello from TheHarmony platform!");
