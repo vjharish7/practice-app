@@ -1,2 +1,10 @@
 console.log("My first line of code");
 console.log("I am building something real");
+const platformName = "TheHarmony";
+const maxPostLength = 280;
+let userCount = 0;
+let isLoggedIn = false;
+console.log(platformName);
+console.log(maxPostLength);
+console.log(userCount);
+console.log(isLoggedIn);
