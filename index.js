@@ -1,43 +1,40 @@
+require("dotenv").config();
 const express = require("express");
+const { Pool } = require("pg");
+
 const app = express();
 app.use(express.json());
 
-// Your users list — same as Month 1
-const users = [
-  { id: 1, username: "theharmony", followerCount: 10 },
-  { id: 2, username: "vjharish7", followerCount: 25 },
-];
-
-// GET /users — return all users
-app.get("/users", (req, res) => {
-  res.json(users);
+const pool = new Pool({
+  user: "theharmony",
+  password: "password123",
+  host: "localhost",
+  port: 5432,
+  database: "practiceapp"
 });
 
-// GET /users/:id — return one user
-app.get("/users/:id", (req, res) => {
-  const user = users.find(u => u.id === parseInt(req.params.id));
-  res.json(user);
+// GET /users — fetch all users
+app.get("/users", async (req, res) => {
+  const result = await pool.query("SELECT * FROM users");
+  res.json(result.rows);
 });
 
-// POST /users — create a new user
-app.post("/users", (req, res) => {
-  const newUser = {
-    id: users.length + 1,
-    username: req.body.username,
-    followerCount: 0
-  };
-  users.push(newUser);
-  res.json(newUser);
+// POST /users — create a user
+app.post("/users", async (req, res) => {
+  const { username, email } = req.body;
+  const result = await pool.query(
+    "INSERT INTO users (username, email) VALUES ($1, $2) RETURNING *",
+    [username, email]
+  );
+  res.json(result.rows[0]);
 });
 
 // DELETE /users/:id — delete a user
-app.delete("/users/:id", (req, res) => {
-  const index = users.findIndex(u => u.id === parseInt(req.params.id));
-  users.splice(index, 1);
+app.delete("/users/:id", async (req, res) => {
+  await pool.query("DELETE FROM users WHERE id = $1", [req.params.id]);
   res.json({ message: "User deleted" });
 });
 
-// Start the server
 app.listen(4000, () => {
   console.log("Server running on port 4000");
 });
